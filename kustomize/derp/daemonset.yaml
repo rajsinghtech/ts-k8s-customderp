@@ -1,0 +1,126 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: tailscale-derp
+  labels:
+    app: tailscale-derp
+spec:
+  selector:
+    matchLabels:
+      app: tailscale-derp
+  template:
+    metadata:
+      labels:
+        app: tailscale-derp
+    spec:
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
+      initContainers:
+      - args:
+        - sysctl -w net.ipv4.ip_forward=1 && if sysctl net.ipv6.conf.all.forwarding; then
+          sysctl -w net.ipv6.conf.all.forwarding=1; fi
+        command:
+        - /bin/sh
+        - -c
+        image: tailscale/tailscale:v1.82.0
+        imagePullPolicy: Always
+        name: sysctler
+        resources: {}
+        securityContext:
+          privileged: true
+      containers:
+      - name: derper
+        image: ghcr.io/erisa/ts-derper:latest
+        imagePullPolicy: Always
+        env:
+        - name: TS_DERP_HOSTNAME
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_HOSTNAME
+        - name: TS_DERP_HTTP_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_HTTP_PORT
+        - name: TS_DERP_LISTEN_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_LISTEN_PORT
+        - name: TS_DERP_STUN_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_STUN_PORT
+        - name: TS_DERP_CERTMODE
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_CERTMODE
+        - name: TS_DERP_VERIFY_CLIENTS
+          valueFrom:
+            configMapKeyRef:
+              name: derp-config
+              key: TS_DERP_VERIFY_CLIENTS
+        - name: TS_AUTHKEY
+          valueFrom:
+            secretKeyRef:
+              name: derp-secret
+              key: TS_AUTHKEY
+        - name: TS_STATE_DIR
+          value: /var/lib/tailscale
+        securityContext:
+          privileged: true
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+        volumeMounts:
+        - name: lib-modules
+          mountPath: /lib/modules
+          readOnly: true
+        - name: certs
+          mountPath: /root/derper
+        - name: tailscale-state
+          mountPath: /var/lib/tailscale
+        - name: tailscale-run
+          mountPath: /var/run/tailscale
+        - name: dev-net-tun
+          mountPath: /dev/net/tun
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        - containerPort: 3478
+          name: stun
+          protocol: UDP
+      volumes:
+      - name: lib-modules
+        hostPath:
+          path: /lib/modules
+          type: Directory
+      - name: certs
+        hostPath:
+          path: /opt/derp/certs
+          type: DirectoryOrCreate
+      - name: tailscale-state
+        hostPath:
+          path: /opt/derp/tailscale-state
+          type: DirectoryOrCreate
+      - name: tailscale-run
+        hostPath:
+          path: /var/run/tailscale
+          type: DirectoryOrCreate
+      - name: dev-net-tun
+        hostPath:
+          path: /dev/net/tun
+          type: CharDevice
+      tolerations:
+      - operator: Exists
+        effect: NoSchedule
+      - operator: Exists
+        effect: NoExecute

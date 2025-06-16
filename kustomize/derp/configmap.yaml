@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: derp-config
+data:
+  TS_DERP_HOSTNAME: "customderp.rajsingh.info"
+  TS_DERP_HTTP_PORT: "80"
+  TS_DERP_LISTEN_PORT: "443"
+  TS_DERP_STUN_PORT: "3478"
+  TS_DERP_CERTMODE: "letsencrypt"
+  TS_DERP_VERIFY_CLIENTS: "true" 

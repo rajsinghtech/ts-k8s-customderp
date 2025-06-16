@@ -1,0 +1,33 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: customderp-raj
+  region: us-east-1
+  version: "1.33"
+
+iam:
+  withOIDC: true
+
+addonsConfig:
+  disableDefaultAddons: true
+addons:
+  - name: coredns
+  - name: kube-proxy
+  - name: vpc-cni
+
+managedNodeGroups:
+  - name: ng-cluster
+    instanceType: c6a.large
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 2
+    privateNetworking: false
+    updateConfig:
+      maxUnavailable: 2
+    ssh:
+      allow: true 
+      publicKeyPath: ~/.ssh/id_rsa.pub
+    securityGroups:
+      attachIDs:
+        - sg-0ee1f8c825c837f94

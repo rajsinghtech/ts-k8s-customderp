@@ -1,0 +1,95 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+*.tfvars.backup
+*.tfplan
+*.tflock.hcl
+**/terraform.tfvars
+.terraform/
+.terraform.lock.hcl
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+
+# AWS credentials and config
+.aws/
+*.pem
+*.key
+*.crt
+aws-credentials
+
+# Kubernetes config
+.kube/
+kubeconfig*
+*.kubeconfig
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+*.out
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Compiled binaries
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Node modules (if using any JS tools)
+node_modules/
+npm-debug.log*
+
+# Python files (if using any Python tools)
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Local development
+.local/
+.cache/
+
+# Helm charts (if downloading)
+charts/
+*.tgz
+
+# ArgoCD manifests with secrets
+*secret*.yaml
+*secrets*.yaml

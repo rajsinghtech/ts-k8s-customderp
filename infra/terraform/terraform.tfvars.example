@@ -1,0 +1,16 @@
+# EKS Cluster Configuration
+region          = "us-east-1"
+cluster_name    = "customderp-raj"
+cluster_version = "1.33"
+
+# Node Group Configuration
+instance_type     = "c6a.large"
+desired_capacity  = 2
+min_size         = 1
+max_size         = 2
+key_name         = "id_rsa"
+
+# DERP Server Ports
+derp_http_port  = 80
+derp_https_port = 443
+derp_stun_port  = 3478 
