@@ -19,8 +19,6 @@ plan:
 apply:
 	@echo "Applying Terraform configuration..."
 	cd $(TF_DIR) && terraform apply -auto-approve
-	@echo "Waiting for cluster to be ready..."
-	sleep 30
 
 destroy-plan:
 	@echo "Planning Terraform destruction..."
@@ -32,7 +30,7 @@ destroy:
 
 configure-kubectl:
 	@echo "Configuring kubectl..."
-	aws eks update-kubeconfig --region us-east-1 --name customderp-raj
+	aws eks update-kubeconfig --region us-east-1 --name customderp
 
 status:
 	@echo "Cluster status:"
