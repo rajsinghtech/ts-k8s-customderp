@@ -4,7 +4,7 @@ cluster_name    = "customderp"
 cluster_version = "1.33"
 
 # Node Group Configuration
-instance_type     = "c6a.large"
+instance_type     = "c6g.xlarge"
 desired_capacity  = 2
 min_size         = 1
 max_size         = 2

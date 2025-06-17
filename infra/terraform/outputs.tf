@@ -40,12 +40,41 @@ output "node_group_arn" {
 
 output "vpc_id" {
   description = "ID of the VPC where the cluster is deployed"
-  value       = data.aws_vpc.default.id
+  value       = aws_vpc.main.id
+}
+
+output "vpc_ipv6_cidr_block" {
+  description = "IPv6 CIDR block assigned to the VPC"
+  value       = aws_vpc.main.ipv6_cidr_block
 }
 
 output "subnet_ids" {
   description = "List of subnet IDs where the cluster is deployed"
-  value       = data.aws_subnets.default.ids
+  value       = aws_subnet.public[*].id
+}
+
+output "subnet_details" {
+  description = "Details of the dual-stack subnets"
+  value = {
+    for subnet in aws_subnet.public : 
+    subnet.id => {
+      availability_zone               = subnet.availability_zone
+      cidr_block                     = subnet.cidr_block
+      ipv6_cidr_block               = subnet.ipv6_cidr_block
+      map_public_ip_on_launch       = subnet.map_public_ip_on_launch
+      assign_ipv6_address_on_creation = subnet.assign_ipv6_address_on_creation
+    }
+  }
+}
+
+output "internet_gateway_id" {
+  description = "ID of the Internet Gateway"
+  value       = aws_internet_gateway.main.id
+}
+
+output "egress_only_internet_gateway_id" {
+  description = "ID of the Egress-only Internet Gateway for IPv6"
+  value       = aws_egress_only_internet_gateway.main.id
 }
 
 output "tailscale_operator_namespace" {
@@ -56,16 +85,4 @@ output "tailscale_operator_namespace" {
 output "cert_manager_namespace" {
   description = "Kubernetes namespace where cert-manager is deployed"
   value       = kubernetes_namespace.cert_manager.metadata[0].name
-}
-
-output "subnet_public_ip_assignment" {
-  description = "Shows which subnets have public IP auto-assignment enabled"
-  value = {
-    for subnet_id, subnet in data.aws_subnet.default_subnets : 
-    subnet_id => {
-      availability_zone = subnet.availability_zone
-      map_public_ip_on_launch = subnet.map_public_ip_on_launch
-      cidr_block = subnet.cidr_block
-    }
-  }
 } 

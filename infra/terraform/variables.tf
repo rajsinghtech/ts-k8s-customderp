@@ -19,7 +19,7 @@ variable "cluster_version" {
 variable "instance_type" {
   description = "EC2 instance type for the EKS worker nodes"
   type        = string
-  default     = "c6a.large"
+  default     = "c6g.xlarge"
 }
 
 variable "desired_capacity" {

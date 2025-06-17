@@ -30,7 +30,7 @@ destroy:
 
 configure-kubectl:
 	@echo "Configuring kubectl..."
-	aws eks update-kubeconfig --region us-east-1 --name customderp
+	tailscale configure kubeconfig customderp-k8s-operator 
 
 status:
 	@echo "Cluster status:"
@@ -67,8 +67,6 @@ test-ping:
 
 apply-manifests:
 	@echo "Applying manifests..."
-	-kubectl create namespace cert-manager || true
-	kustomize build kustomize/cert-manager --enable-helm | kubectl apply -f -
 	kubectl apply -k kustomize/derp
 
 .PHONY: start stop init plan apply destroy-plan destroy configure-kubectl status outputs validate format clean test-ping

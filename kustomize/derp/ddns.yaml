@@ -30,8 +30,6 @@ spec:
               value: "$(NODE_NAME).customderp.rajsingh.info"
             - name: PROXIED
               value: "false"
-            - name: IP6_PROVIDER
-              value: "none"
       securityContext:
         runAsUser: 1000
         runAsGroup: 1000

@@ -10,7 +10,7 @@ locals {
   cluster_version    = var.cluster_version
   node_instance_type = var.instance_type
   node_capacity_type = "ON_DEMAND"
-  node_ami_type      = "AL2023_x86_64_STANDARD"
+  node_ami_type      = "AL2023_ARM_64_STANDARD"
   desired_size       = var.desired_capacity
   max_size           = var.max_size
   min_size           = var.min_size
@@ -34,32 +34,114 @@ data "aws_availability_zones" "available" {
   }
 }
 
-# Get default VPC
-data "aws_vpc" "default" {
-  default = true
+################################################################################
+# VPC Configuration for Dual-Stack (IPv4 + IPv6)                            #
+################################################################################
+
+# Create custom VPC with dual-stack support
+resource "aws_vpc" "main" {
+  cidr_block                       = "10.0.0.0/16"
+  assign_generated_ipv6_cidr_block = true
+  enable_dns_hostnames             = true
+  enable_dns_support               = true
+
+  tags = merge(
+    local.aws_tags,
+    {
+      Name = "${local.name}-vpc"
+    }
+  )
 }
 
-# Get default subnets in supported AZs only
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
-  }
-  filter {
-    name   = "availability-zone"
-    values = data.aws_availability_zones.available.names
-  }
+# Internet Gateway
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(
+    local.aws_tags,
+    {
+      Name = "${local.name}-igw"
+    }
+  )
 }
 
-# Get detailed subnet information to check public IP assignment
-data "aws_subnet" "default_subnets" {
-  for_each = toset(data.aws_subnets.default.ids)
-  id       = each.value
+# Egress-only Internet Gateway for IPv6
+resource "aws_egress_only_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = merge(
+    local.aws_tags,
+    {
+      Name = "${local.name}-eigw"
+    }
+  )
+}
+
+# Public subnets with IPv4 and IPv6
+resource "aws_subnet" "public" {
+  count = min(length(data.aws_availability_zones.available.names), 3)
+
+  vpc_id                          = aws_vpc.main.id
+  cidr_block                      = "10.0.${count.index + 1}.0/24"
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, count.index + 1)
+  availability_zone               = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch         = true
+  assign_ipv6_address_on_creation = true
+
+  tags = merge(
+    local.aws_tags,
+    {
+      Name = "${local.name}-public-${data.aws_availability_zones.available.names[count.index]}"
+      Type = "Public"
+    }
+  )
+}
+
+# Route table for public subnets
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  route {
+    ipv6_cidr_block = "::/0"
+    gateway_id      = aws_internet_gateway.main.id
+  }
+
+  tags = merge(
+    local.aws_tags,
+    {
+      Name = "${local.name}-public-rt"
+    }
+  )
+}
+
+# Associate public subnets with route table
+resource "aws_route_table_association" "public" {
+  count = length(aws_subnet.public)
+
+  subnet_id      = aws_subnet.public[count.index].id
+  route_table_id = aws_route_table.public.id
 }
 
 ################################################################################
 # EKS Cluster                                                                  #
 ################################################################################
+
+# Wait for IAM policy propagation (eventual consistency)
+resource "time_sleep" "wait_for_iam_policy" {
+  create_duration = "30s"
+  
+  depends_on = [
+    aws_vpc.main,
+    aws_subnet.public,
+    aws_internet_gateway.main,
+    aws_egress_only_internet_gateway.main
+  ]
+}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -75,18 +157,48 @@ module "eks" {
   enable_cluster_creator_admin_permissions = true
   enable_irsa = true
   
+  # Required for IPv6 clusters - creates the CNI IPv6 policy
+  create_cni_ipv6_iam_policy = true
+  
   cluster_addons = {
-    coredns    = {}
+    coredns = {
+      configuration_values = jsonencode({
+        nodeSelector = {
+          "kubernetes.io/os" = "linux"
+        }
+        tolerations = [
+          {
+            key    = "CriticalAddonsOnly"
+            operator = "Exists"
+          },
+          {
+            key    = "node.kubernetes.io/not-ready"
+            operator = "Exists"
+            effect = "NoExecute"
+            tolerationSeconds = 300
+          },
+          {
+            key    = "node.kubernetes.io/unreachable"
+            operator = "Exists"
+            effect = "NoExecute"
+            tolerationSeconds = 300
+          }
+        ]
+      })
+    }
     kube-proxy = {}
-    vpc-cni    = {}
+    vpc-cni = {}
   }
 
   # Enable logging
   cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
   cloudwatch_log_group_retention_in_days = 7
 
-  vpc_id     = data.aws_vpc.default.id
-  subnet_ids = data.aws_subnets.default.ids
+  vpc_id                   = aws_vpc.main.id
+  subnet_ids               = aws_subnet.public[*].id
+  cluster_ip_family        = "ipv6"
+  
+  depends_on = [time_sleep.wait_for_iam_policy]
 
   eks_managed_node_groups = {
     "${local.name}-nodes" = {
@@ -119,9 +231,9 @@ module "eks" {
 
   # Additional security group rules for DERP and ICMP
   node_security_group_additional_rules = {
-    # ICMP (ping) traffic
+    # ICMP (ping) traffic - IPv4
     ingress_icmp = {
-      description = "ICMP ping traffic"
+      description = "ICMP ping traffic IPv4"
       protocol    = "icmp"
       from_port   = -1
       to_port     = -1
@@ -129,9 +241,19 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    # SSH access
+    # ICMPv6 (ping) traffic - IPv6
+    ingress_icmpv6 = {
+      description      = "ICMPv6 ping traffic IPv6"
+      protocol         = "icmpv6"
+      from_port        = -1
+      to_port          = -1
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # SSH access - IPv4
     ingress_ssh = {
-      description = "SSH access"
+      description = "SSH access IPv4"
       protocol    = "tcp"
       from_port   = 22
       to_port     = 22
@@ -139,9 +261,19 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    # DERP HTTP
+    # SSH access - IPv6
+    ingress_ssh_ipv6 = {
+      description      = "SSH access IPv6"
+      protocol         = "tcp"
+      from_port        = 22
+      to_port          = 22
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # DERP HTTP - IPv4
     ingress_derp_http = {
-      description = "DERP HTTP traffic"
+      description = "DERP HTTP traffic IPv4"
       protocol    = "tcp"
       from_port   = var.derp_http_port
       to_port     = var.derp_http_port
@@ -149,9 +281,19 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    # DERP HTTPS
+    # DERP HTTP - IPv6
+    ingress_derp_http_ipv6 = {
+      description      = "DERP HTTP traffic IPv6"
+      protocol         = "tcp"
+      from_port        = var.derp_http_port
+      to_port          = var.derp_http_port
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # DERP HTTPS - IPv4
     ingress_derp_https = {
-      description = "DERP HTTPS traffic"
+      description = "DERP HTTPS traffic IPv4"
       protocol    = "tcp"
       from_port   = var.derp_https_port
       to_port     = var.derp_https_port
@@ -159,9 +301,19 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    # DERP STUN TCP
+    # DERP HTTPS - IPv6
+    ingress_derp_https_ipv6 = {
+      description      = "DERP HTTPS traffic IPv6"
+      protocol         = "tcp"
+      from_port        = var.derp_https_port
+      to_port          = var.derp_https_port
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # DERP STUN TCP - IPv4
     ingress_derp_stun_tcp = {
-      description = "DERP STUN TCP traffic"
+      description = "DERP STUN TCP traffic IPv4"
       protocol    = "tcp"
       from_port   = var.derp_stun_port
       to_port     = var.derp_stun_port
@@ -169,14 +321,34 @@ module "eks" {
       cidr_blocks = ["0.0.0.0/0"]
     }
 
-    # DERP STUN UDP
+    # DERP STUN TCP - IPv6
+    ingress_derp_stun_tcp_ipv6 = {
+      description      = "DERP STUN TCP traffic IPv6"
+      protocol         = "tcp"
+      from_port        = var.derp_stun_port
+      to_port          = var.derp_stun_port
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # DERP STUN UDP - IPv4
     ingress_derp_stun_udp = {
-      description = "DERP STUN UDP traffic"
+      description = "DERP STUN UDP traffic IPv4"
       protocol    = "udp"
       from_port   = var.derp_stun_port
       to_port     = var.derp_stun_port
       type        = "ingress"
       cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # DERP STUN UDP - IPv6
+    ingress_derp_stun_udp_ipv6 = {
+      description      = "DERP STUN UDP traffic IPv6"
+      protocol         = "udp"
+      from_port        = var.derp_stun_port
+      to_port          = var.derp_stun_port
+      type             = "ingress"
+      ipv6_cidr_blocks = ["::/0"]
     }
 
     # Tailscale specific port
@@ -190,14 +362,24 @@ module "eks" {
       ipv6_cidr_blocks = ["::/0"]
     }
 
-    # Allow all traffic within the VPC
+    # Allow all traffic within the VPC - IPv4
     ingress_vpc_all = {
-      description = "Allow all traffic within VPC"
+      description = "Allow all traffic within VPC IPv4"
       from_port   = 0
       to_port     = 0
       type        = "ingress"
       protocol    = "-1"
-      cidr_blocks = [data.aws_vpc.default.cidr_block]
+      cidr_blocks = [aws_vpc.main.cidr_block]
+    }
+
+    # Allow all traffic within the VPC - IPv6
+    ingress_vpc_all_ipv6 = {
+      description      = "Allow all traffic within VPC IPv6"
+      from_port        = 0
+      to_port          = 0
+      type             = "ingress"
+      protocol         = "-1"
+      ipv6_cidr_blocks = [aws_vpc.main.ipv6_cidr_block]
     }
 
     # Allow all traffic within the worker-node security group

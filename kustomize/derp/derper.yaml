@@ -37,6 +37,16 @@ spec:
         image: ghcr.io/erisa/ts-derper:latest
         imagePullPolicy: Always
         env:
+        - name: TS_RUN_TAILSCALE
+          value: "true"
+        - name: TS_KUBE_SECRET
+          value: ""
+        - name: TS_USERSPACE
+          value: "false"
+        - name: TS_EXTRA_ARGS
+          value: "--reset"
+        - name: TS_STATE_DIR
+          value: /tsstate
         - name: NODE_NAME
           valueFrom:
             fieldRef:
@@ -58,8 +68,8 @@ spec:
             secretKeyRef:
               name: derp-secret
               key: TS_AUTHKEY
-        - name: TS_STATE_DIR
-          value: /var/lib/tailscale
+        - name: TS_ACCEPT_DNS
+          value: "true"
         securityContext:
           privileged: true
           capabilities:
@@ -67,18 +77,11 @@ spec:
             - NET_ADMIN
             - NET_RAW
         volumeMounts:
-        - name: lib-modules
-          mountPath: /lib/modules
-          readOnly: true
-        - name: derper-tls
-          mountPath: /root/derper
-          readOnly: true
+        # - name: derper-tls
+        #   mountPath: /root/derper
+        #   readOnly: true
         - name: tailscale-state
-          mountPath: /var/lib/tailscale
-        - name: tailscale-run
-          mountPath: /var/run/tailscale
-        - name: dev-net-tun
-          mountPath: /dev/net/tun
+          mountPath: /tsstate
         ports:
         - containerPort: 80
           name: http
@@ -90,27 +93,8 @@ spec:
           name: stun
           protocol: UDP
       volumes:
-      - name: lib-modules
-        hostPath:
-          path: /lib/modules
-          type: Directory
-      - name: derper-tls
-        secret:
-          secretName: derper-tls
+      # - name: derper-tls
+      #   secret:
+      #     secretName: derper-tls
       - name: tailscale-state
-        hostPath:
-          path: /opt/derp/tailscale-state
-          type: DirectoryOrCreate
-      - name: tailscale-run
-        hostPath:
-          path: /var/run/tailscale
-          type: DirectoryOrCreate
-      - name: dev-net-tun
-        hostPath:
-          path: /dev/net/tun
-          type: CharDevice
-      tolerations:
-      - operator: Exists
-        effect: NoSchedule
-      - operator: Exists
-        effect: NoExecute
+        emptyDir: {}
