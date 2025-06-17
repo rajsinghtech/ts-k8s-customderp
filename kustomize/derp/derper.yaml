@@ -50,7 +50,7 @@ spec:
         - name: TS_DERP_STUN_PORT
           value: "3478"
         - name: TS_DERP_CERTMODE
-          value: "manual"
+          value: "letsencrypt"
         - name: TS_DERP_VERIFY_CLIENTS
           value: "true"
         - name: TS_AUTHKEY

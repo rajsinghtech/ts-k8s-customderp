@@ -53,6 +53,11 @@ output "tailscale_operator_namespace" {
   value       = kubernetes_namespace.tailscale_operator.metadata[0].name
 }
 
+output "cert_manager_namespace" {
+  description = "Kubernetes namespace where cert-manager is deployed"
+  value       = kubernetes_namespace.cert_manager.metadata[0].name
+}
+
 output "subnet_public_ip_assignment" {
   description = "Shows which subnets have public IP auto-assignment enabled"
   value = {

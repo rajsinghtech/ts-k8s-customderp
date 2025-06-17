@@ -242,6 +242,40 @@ resource "kubernetes_namespace" "derp" {
   depends_on = [module.eks]
 }
 
+# Kubernetes namespace for cert-manager
+resource "kubernetes_namespace" "cert_manager" {
+  metadata {
+    name = "cert-manager"
+  }
+
+  depends_on = [module.eks]
+}
+
+# Deploy cert-manager using Helm
+resource "helm_release" "cert_manager" {
+  name       = "cert-manager"
+  repository = "https://charts.jetstack.io"
+  chart      = "cert-manager"
+  version    = "v1.18.0"
+  namespace  = kubernetes_namespace.cert_manager.metadata[0].name
+
+  values = [
+    yamlencode({
+      installCRDs = true
+      dns01RecursiveNameserversOnly = true
+      extraArgs = [
+        "--dns01-recursive-nameservers=1.1.1.1:53,8.8.8.8:53",
+        "--dns01-recursive-nameservers-only"
+      ]
+    })
+  ]
+
+  depends_on = [
+    kubernetes_namespace.cert_manager,
+    module.eks,
+  ]
+}
+
 # Deploy Tailscale Operator using Helm
 resource "helm_release" "tailscale_operator" {
   name       = "tailscale-operator"
