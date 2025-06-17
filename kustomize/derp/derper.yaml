@@ -15,6 +15,10 @@ spec:
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
+      dnsConfig:
+        nameservers:
+        - "1.1.1.1"
+        - "1.0.0.1"
       initContainers:
       - args:
         - sysctl -w net.ipv4.ip_forward=1 && if sysctl net.ipv6.conf.all.forwarding; then
@@ -33,36 +37,22 @@ spec:
         image: ghcr.io/erisa/ts-derper:latest
         imagePullPolicy: Always
         env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
         - name: TS_DERP_HOSTNAME
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_HOSTNAME
+          value: "$(NODE_NAME).customderp.rajsingh.info"
         - name: TS_DERP_HTTP_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_HTTP_PORT
+          value: "80"
         - name: TS_DERP_LISTEN_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_LISTEN_PORT
+          value: "443"
         - name: TS_DERP_STUN_PORT
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_STUN_PORT
+          value: "3478"
         - name: TS_DERP_CERTMODE
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_CERTMODE
+          value: "manual"
         - name: TS_DERP_VERIFY_CLIENTS
-          valueFrom:
-            configMapKeyRef:
-              name: derp-config
-              key: TS_DERP_VERIFY_CLIENTS
+          value: "true"
         - name: TS_AUTHKEY
           valueFrom:
             secretKeyRef:
@@ -80,8 +70,9 @@ spec:
         - name: lib-modules
           mountPath: /lib/modules
           readOnly: true
-        - name: certs
+        - name: derper-tls
           mountPath: /root/derper
+          readOnly: true
         - name: tailscale-state
           mountPath: /var/lib/tailscale
         - name: tailscale-run
@@ -103,10 +94,9 @@ spec:
         hostPath:
           path: /lib/modules
           type: Directory
-      - name: certs
-        hostPath:
-          path: /opt/derp/certs
-          type: DirectoryOrCreate
+      - name: derper-tls
+        secret:
+          secretName: derper-tls
       - name: tailscale-state
         hostPath:
           path: /opt/derp/tailscale-state

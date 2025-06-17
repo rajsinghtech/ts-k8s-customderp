@@ -1,41 +1,41 @@
 output "cluster_endpoint" {
   description = "Endpoint for EKS control plane"
-  value       = aws_eks_cluster.main.endpoint
+  value       = module.eks.cluster_endpoint
 }
 
 output "cluster_security_group_id" {
   description = "Security group ids attached to the cluster control plane"
-  value       = aws_security_group.cluster.id
+  value       = module.eks.cluster_primary_security_group_id
 }
 
 output "cluster_name" {
   description = "Kubernetes Cluster Name"
-  value       = aws_eks_cluster.main.name
+  value       = module.eks.cluster_name
 }
 
 output "cluster_certificate_authority_data" {
   description = "Base64 encoded certificate data required to communicate with the cluster"
-  value       = aws_eks_cluster.main.certificate_authority[0].data
+  value       = module.eks.cluster_certificate_authority_data
 }
 
-output "derp_nodes_security_group_id" {
-  description = "Security group ID for EKS nodes with DERP and ICMP access"
-  value       = aws_security_group.derp_nodes.id
+output "node_security_group_id" {
+  description = "Security group ID for EKS nodes"
+  value       = module.eks.node_security_group_id
 }
 
 output "cluster_version" {
   description = "The Kubernetes version for the cluster"
-  value       = aws_eks_cluster.main.version
+  value       = module.eks.cluster_version
 }
 
 output "cluster_arn" {
   description = "The Amazon Resource Name (ARN) of the cluster"
-  value       = aws_eks_cluster.main.arn
+  value       = module.eks.cluster_arn
 }
 
 output "node_group_arn" {
   description = "EKS node group ARN"
-  value       = aws_eks_node_group.main.arn
+  value       = [for ng in module.eks.eks_managed_node_groups : ng.node_group_arn][0]
 }
 
 output "vpc_id" {

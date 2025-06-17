@@ -20,6 +20,10 @@ locals {
   tailscale_oauth_client_secret = var.tailscale_oauth_client_secret
 }
 
+################################################################################
+# Data sources and Provider Initialization                                     #
+################################################################################
+
 # Get availability zones (exclude us-east-1e which doesn't support EKS)
 data "aws_availability_zones" "available" {
   state = "available"
@@ -53,73 +57,166 @@ data "aws_subnet" "default_subnets" {
   id       = each.value
 }
 
-# EKS Cluster
-resource "aws_eks_cluster" "main" {
-  name     = local.name
-  role_arn = aws_iam_role.cluster.arn
-  version  = local.cluster_version
+################################################################################
+# EKS Cluster                                                                  #
+################################################################################
 
-  vpc_config {
-    subnet_ids              = data.aws_subnets.default.ids
-    endpoint_private_access = true
-    endpoint_public_access  = true
-    public_access_cidrs     = ["0.0.0.0/0"]
-    security_group_ids      = [aws_security_group.cluster.id, aws_security_group.derp_nodes.id]
+module "eks" {
+  source  = "terraform-aws-modules/eks/aws"
+  version = "~> 20.0"
+
+  cluster_name    = local.name
+  cluster_version = local.cluster_version
+  
+  cluster_endpoint_public_access  = true
+  cluster_endpoint_private_access = true
+  cluster_endpoint_public_access_cidrs = ["0.0.0.0/0"]
+  
+  enable_cluster_creator_admin_permissions = true
+  enable_irsa = true
+  
+  cluster_addons = {
+    coredns    = {}
+    kube-proxy = {}
+    vpc-cni    = {}
   }
 
   # Enable logging
-  enabled_cluster_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cluster_enabled_log_types = ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+  cloudwatch_log_group_retention_in_days = 7
+
+  vpc_id     = data.aws_vpc.default.id
+  subnet_ids = data.aws_subnets.default.ids
+
+  eks_managed_node_groups = {
+    "${local.name}-nodes" = {
+      instance_types = [local.node_instance_type]
+      capacity_type  = local.node_capacity_type
+      ami_type       = local.node_ami_type
+
+      min_size     = local.min_size
+      max_size     = local.max_size
+      desired_size = local.desired_size
+
+      # Enable public IP assignment for nodes
+      associate_public_ip_address = true
+
+      # SSH key configuration
+      key_name = var.key_name
+
+      update_config = {
+        max_unavailable = 1
+      }
+
+      tags = merge(
+        local.aws_tags,
+        {
+          Name = "${local.name}-eks-node"
+        }
+      )
+    }
+  }
+
+  # Additional security group rules for DERP and ICMP
+  node_security_group_additional_rules = {
+    # ICMP (ping) traffic
+    ingress_icmp = {
+      description = "ICMP ping traffic"
+      protocol    = "icmp"
+      from_port   = -1
+      to_port     = -1
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # SSH access
+    ingress_ssh = {
+      description = "SSH access"
+      protocol    = "tcp"
+      from_port   = 22
+      to_port     = 22
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # DERP HTTP
+    ingress_derp_http = {
+      description = "DERP HTTP traffic"
+      protocol    = "tcp"
+      from_port   = var.derp_http_port
+      to_port     = var.derp_http_port
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # DERP HTTPS
+    ingress_derp_https = {
+      description = "DERP HTTPS traffic"
+      protocol    = "tcp"
+      from_port   = var.derp_https_port
+      to_port     = var.derp_https_port
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # DERP STUN TCP
+    ingress_derp_stun_tcp = {
+      description = "DERP STUN TCP traffic"
+      protocol    = "tcp"
+      from_port   = var.derp_stun_port
+      to_port     = var.derp_stun_port
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # DERP STUN UDP
+    ingress_derp_stun_udp = {
+      description = "DERP STUN UDP traffic"
+      protocol    = "udp"
+      from_port   = var.derp_stun_port
+      to_port     = var.derp_stun_port
+      type        = "ingress"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # Tailscale specific port
+    ingress_tailscale = {
+      description      = "Tailscale UDP traffic"
+      protocol         = "udp"
+      from_port        = 41641
+      to_port          = 41641
+      type             = "ingress"
+      cidr_blocks      = ["0.0.0.0/0"]
+      ipv6_cidr_blocks = ["::/0"]
+    }
+
+    # Allow all traffic within the VPC
+    ingress_vpc_all = {
+      description = "Allow all traffic within VPC"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      protocol    = "-1"
+      cidr_blocks = [data.aws_vpc.default.cidr_block]
+    }
+
+    # Allow all traffic within the worker-node security group
+    ingress_self_all = {
+      description = "Allow all traffic within the worker-node security group"
+      from_port   = 0
+      to_port     = 0
+      type        = "ingress"
+      protocol    = "-1"
+      self        = true
+    }
+  }
 
   tags = local.aws_tags
-
-  depends_on = [
-    aws_iam_role_policy_attachment.cluster_AmazonEKSClusterPolicy,
-    aws_cloudwatch_log_group.eks_cluster,
-  ]
 }
 
-# EKS Node Group
-resource "aws_eks_node_group" "main" {
-  cluster_name    = aws_eks_cluster.main.name
-  node_group_name = "${local.name}-nodes"
-  node_role_arn   = aws_iam_role.node_group.arn
-  subnet_ids      = data.aws_subnets.default.ids
-
-  capacity_type  = local.node_capacity_type
-  ami_type       = local.node_ami_type
-  instance_types = [local.node_instance_type]
-
-  scaling_config {
-    desired_size = local.desired_size
-    max_size     = local.max_size
-    min_size     = local.min_size
-  }
-
-  update_config {
-    max_unavailable = 1
-  }
-
-  # SSH access configuration
-  remote_access {
-    ec2_ssh_key               = var.key_name
-    source_security_group_ids = [aws_security_group.derp_nodes.id]
-  }
-
-  tags = local.aws_tags
-
-  depends_on = [
-    aws_iam_role_policy_attachment.node_group_AmazonEKSWorkerNodePolicy,
-    aws_iam_role_policy_attachment.node_group_AmazonEKS_CNI_Policy,
-    aws_iam_role_policy_attachment.node_group_AmazonEC2ContainerRegistryReadOnly,
-  ]
-}
-
-# CloudWatch Log Group for EKS Cluster
-resource "aws_cloudwatch_log_group" "eks_cluster" {
-  name              = "/aws/eks/${local.name}/cluster"
-  retention_in_days = 7
-  tags              = local.aws_tags
-}
+################################################################################
+# Kubernetes Resources                                                         #
+################################################################################
 
 # Kubernetes namespace for Tailscale operator
 resource "kubernetes_namespace" "tailscale_operator" {
@@ -130,7 +227,19 @@ resource "kubernetes_namespace" "tailscale_operator" {
     }
   }
 
-  depends_on = [aws_eks_node_group.main]
+  depends_on = [module.eks]
+}
+
+# Kubernetes namespace for DERP server
+resource "kubernetes_namespace" "derp" {
+  metadata {
+    name = "derp"
+    labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged"
+    }
+  }
+
+  depends_on = [module.eks]
 }
 
 # Deploy Tailscale Operator using Helm
@@ -175,194 +284,6 @@ resource "helm_release" "tailscale_operator" {
 
   depends_on = [
     kubernetes_namespace.tailscale_operator,
-    aws_eks_node_group.main,
+    module.eks,
   ]
-}
-
-# Security group for EKS cluster
-resource "aws_security_group" "cluster" {
-  name_prefix = "${local.name}-cluster-"
-  vpc_id      = data.aws_vpc.default.id
-
-  tags = merge(
-    local.aws_tags,
-    {
-      Name = "${local.name}-cluster"
-    }
-  )
-}
-
-resource "aws_security_group_rule" "cluster_egress" {
-  security_group_id = aws_security_group.cluster.id
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
-}
-
-# Security group for DERP nodes with all required ports
-resource "aws_security_group" "derp_nodes" {
-  vpc_id = data.aws_vpc.default.id
-  name   = "${local.name}-derp-nodes"
-
-  tags = merge(
-    local.aws_tags,
-    {
-      Name = "${local.name}-derp-nodes"
-    }
-  )
-}
-
-# ICMP (ping) traffic
-resource "aws_security_group_rule" "derp_icmp_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = -1
-  to_port           = -1
-  protocol          = "icmp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# SSH access
-resource "aws_security_group_rule" "derp_ssh_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = 22
-  to_port           = 22
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# DERP HTTP
-resource "aws_security_group_rule" "derp_http_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = var.derp_http_port
-  to_port           = var.derp_http_port
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# DERP HTTPS
-resource "aws_security_group_rule" "derp_https_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = var.derp_https_port
-  to_port           = var.derp_https_port
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# DERP STUN TCP
-resource "aws_security_group_rule" "derp_stun_tcp_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = var.derp_stun_port
-  to_port           = var.derp_stun_port
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# DERP STUN UDP
-resource "aws_security_group_rule" "derp_stun_udp_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = var.derp_stun_port
-  to_port           = var.derp_stun_port
-  protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/0"]
-}
-
-# Tailscale specific port
-resource "aws_security_group_rule" "tailscale_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = 41641
-  to_port           = 41641
-  protocol          = "udp"
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
-}
-
-# All egress traffic
-resource "aws_security_group_rule" "derp_egress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "egress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
-}
-
-# Internal VPC traffic
-resource "aws_security_group_rule" "internal_vpc_ingress" {
-  security_group_id = aws_security_group.derp_nodes.id
-  type              = "ingress"
-  from_port         = 0
-  to_port           = 0
-  protocol          = "-1"
-  cidr_blocks       = [data.aws_vpc.default.cidr_block]
-}
-
-# IAM Role for EKS Cluster
-resource "aws_iam_role" "cluster" {
-  name = "${local.name}-cluster-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "eks.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = local.aws_tags
-}
-
-resource "aws_iam_role_policy_attachment" "cluster_AmazonEKSClusterPolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
-  role       = aws_iam_role.cluster.name
-}
-
-# IAM Role for EKS Node Group
-resource "aws_iam_role" "node_group" {
-  name = "${local.name}-node-group-role"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "ec2.amazonaws.com"
-        }
-      }
-    ]
-  })
-
-  tags = local.aws_tags
-}
-
-resource "aws_iam_role_policy_attachment" "node_group_AmazonEKSWorkerNodePolicy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
-  role       = aws_iam_role.node_group.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_group_AmazonEKS_CNI_Policy" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
-  role       = aws_iam_role.node_group.name
-}
-
-resource "aws_iam_role_policy_attachment" "node_group_AmazonEC2ContainerRegistryReadOnly" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.node_group.name
 } 
