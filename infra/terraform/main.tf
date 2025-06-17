@@ -64,7 +64,7 @@ resource "aws_eks_cluster" "main" {
     endpoint_private_access = true
     endpoint_public_access  = true
     public_access_cidrs     = ["0.0.0.0/0"]
-    security_group_ids      = [aws_security_group.cluster.id]
+    security_group_ids      = [aws_security_group.cluster.id, aws_security_group.derp_nodes.id]
   }
 
   # Enable logging
@@ -78,30 +78,6 @@ resource "aws_eks_cluster" "main" {
   ]
 }
 
-# Launch template for EKS nodes with custom security groups
-resource "aws_launch_template" "eks_nodes" {
-  name_prefix   = "${local.name}-node-group-"
-  
-  vpc_security_group_ids = [
-    aws_security_group.derp_nodes.id  # Our custom DERP security group with ICMP
-  ]
-  
-  # SSH key configuration (moved from remote_access)
-  key_name = var.key_name
-  
-  tag_specifications {
-    resource_type = "instance"
-    tags = merge(
-      local.aws_tags,
-      {
-        Name = "${local.name}-eks-node"
-      }
-    )
-  }
-  
-  tags = local.aws_tags
-}
-
 # EKS Node Group
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
@@ -113,12 +89,6 @@ resource "aws_eks_node_group" "main" {
   ami_type       = local.node_ami_type
   instance_types = [local.node_instance_type]
 
-  # Use custom launch template
-  launch_template {
-    id      = aws_launch_template.eks_nodes.id
-    version = "$Latest"
-  }
-
   scaling_config {
     desired_size = local.desired_size
     max_size     = local.max_size
@@ -129,8 +99,11 @@ resource "aws_eks_node_group" "main" {
     max_unavailable = 1
   }
 
-  # SSH access is now configured in the launch template
-  # remote_access block removed as it conflicts with launch_template
+  # SSH access configuration
+  remote_access {
+    ec2_ssh_key               = var.key_name
+    source_security_group_ids = [aws_security_group.derp_nodes.id]
+  }
 
   tags = local.aws_tags
 
