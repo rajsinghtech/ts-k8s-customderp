@@ -2,7 +2,7 @@
 
 A production-ready AWS EKS deployment for running custom Tailscale DERP (Detour Encrypted Relay Proxy) servers with comprehensive monitoring, automated certificate management, and dual-stack IPv4/IPv6 networking.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This project deploys a highly available Tailscale DERP infrastructure on AWS EKS featuring:
 
@@ -13,7 +13,7 @@ This project deploys a highly available Tailscale DERP infrastructure on AWS EKS
 - **Comprehensive Monitoring** - Prometheus, Grafana, and custom DERP metrics
 - **Infrastructure as Code** - Terraform for AWS resources, Kustomize for K8s manifests
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -62,7 +62,7 @@ This command will:
 2. Install cert-manager and Tailscale operator
 3. Deploy DERP servers and monitoring stack
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── infra/
@@ -71,7 +71,6 @@ This command will:
 │       ├── variables.tf     # Configuration variables
 │       └── outputs.tf       # Cluster outputs
 ├── kustomize/
-│   ├── cert-manager/        # TLS certificate management
 │   ├── derp/               # DERP server manifests
 │   │   ├── daemonset.yaml  # DERP server deployment
 │   │   ├── ddns.yaml       # Dynamic DNS updater
@@ -82,7 +81,7 @@ This command will:
 └── Makefile               # Automation commands
 ```
 
-## 🔧 Components
+## Components
 
 ### EKS Cluster
 
@@ -113,7 +112,7 @@ This command will:
 - **Least Privilege**: Minimal IAM permissions and RBAC
 - **Encryption**: EBS volumes encrypted at rest
 
-## 🛠️ Make Commands
+## Make Commands
 
 ```bash
 # Deploy full infrastructure
@@ -135,7 +134,7 @@ make status
 make clean
 ```
 
-## 🌐 Network Configuration
+## Network Configuration
 
 ### Security Groups
 
@@ -153,7 +152,7 @@ The cluster includes security group rules for both IPv4 and IPv6:
 - **Challenge**: DNS-01 via Cloudflare API
 - **DDNS**: Automatic A/AAAA record updates
 
-## 📊 Monitoring and Observability
+## Monitoring and Observability
 
 ### Dashboards
 
@@ -170,7 +169,7 @@ Access monitoring via Tailscale ingress:
 - Node resource utilization
 - Certificate expiration tracking
 
-## 🔐 Security Considerations
+## Security Considerations
 
 - All communication encrypted with Tailscale
 - EBS volumes encrypted at rest
@@ -178,19 +177,7 @@ Access monitoring via Tailscale ingress:
 - Network policies restricting traffic
 - Automated security updates
 
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
-
-## 📄 License
-
-This project is open source. Please check individual component licenses.
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - [Erisa](https://github.com/Erisa) for the excellent [ts-derp-docker](https://github.com/Erisa/ts-derp-docker) implementation
 - Tailscale team for the DERP protocol and tooling
