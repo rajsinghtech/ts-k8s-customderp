@@ -67,6 +67,8 @@ test-ping:
 
 apply-manifests:
 	@echo "Applying manifests..."
+	kustomize build kustomize/monitoring --enable-helm | kubectl apply --server-side -f - || true
+	kustomize build kustomize/monitoring --enable-helm | kubectl apply --server-side -f - || true
 	kubectl apply -k kustomize/derp
 
 .PHONY: start stop init plan apply destroy-plan destroy configure-kubectl status outputs validate format clean test-ping

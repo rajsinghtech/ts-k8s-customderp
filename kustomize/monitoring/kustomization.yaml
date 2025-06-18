@@ -2,20 +2,16 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
   - namespace.yaml
-#   - dashboard-tailscale.yaml
+  - dashboard-tailscale.yaml
 
 helmCharts:
-  - name: prometheus-operator-crds
+  - name: kube-prometheus-stack
     repo: https://prometheus-community.github.io/helm-charts
-    version: 19.1.0  # Replace with the desired version
-    releaseName: prometheus-operator-crds
+    version: 70.7.0
     namespace: monitoring
+    releaseName: kube-prometheus-stack
     includeCRDs: true
-    valuesInline: {}
-#   - name: kube-prometheus-stack
-#     repo: https://prometheus-community.github.io/helm-charts
-#     version: 70.7.0
-#     namespace: monitoring
-#     releaseName: kube-prometheus-stack
-#     includeCRDs: true
-#     valuesFile: values-kube-prometheus-stack.yaml
+    valuesFile: values-kube-prometheus-stack.yaml
+
+resources:
+  - ingress.yaml

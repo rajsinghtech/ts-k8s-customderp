@@ -6,25 +6,32 @@ metadata:
 data:
   custom-derp.json: |
     {
-    	"Regions": {
-    		"900": {
-    			"RegionID": 900,
-    			"RegionCode": "customderp",
-    			"RegionName": "Custom DERP",
-    			"Nodes": [
-    				{
-    					"Name": "1",
-    					"RegionID": 900,
-    					"HostName": "ip-10-0-3-119.ec2.internal.customderp.rajsingh.info"
-    				},
-    				{
-    					"Name": "2",
-    					"RegionID": 900,
-    					"HostName": "ip-10-0-2-81.ec2.internal.customderp.rajsingh.info"
-    				}
-    			]
-    		}
-    	}
+        "Regions": {
+            "900": {
+                "RegionID": 900,
+                "RegionCode": "awseastus1-0",
+                "RegionName": "Custom Derp",
+                "Nodes": [
+                    {
+                        "Name": "0",
+                        "RegionID": 900,
+                        "HostName": "ip-10-0-3-119.ec2.internal.customderp.rajsingh.info"
+                    }
+                ]
+            },
+            "901": {
+                "RegionID": 901,
+                "RegionCode": "awseastus1-1",
+                "RegionName": "Custom Derp",
+                "Nodes": [
+                    {
+                        "Name": "1",
+                        "RegionID": 901,
+                        "HostName": "ip-10-0-2-81.ec2.internal.customderp.rajsingh.info"
+                    }
+                ]
+            }
+        }
     }
 ---
 apiVersion: apps/v1
@@ -61,6 +68,8 @@ apiVersion: v1
 kind: Service
 metadata:
   name: derpprobe
+  labels:
+    app: derpprobe
 spec:
   selector:
     app: derpprobe
@@ -88,3 +97,19 @@ spec:
   tls:
   - hosts:
     - derpprobe
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: derpprobe
+  labels:
+    app: derpprobe
+spec:
+  endpoints:
+    - interval: 30s
+      path: /metrics
+      port: http
+      scheme: http
+  selector:
+    matchLabels:
+      app: derpprobe

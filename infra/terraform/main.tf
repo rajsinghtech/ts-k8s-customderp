@@ -188,6 +188,10 @@ module "eks" {
     }
     kube-proxy = {}
     vpc-cni = {}
+    aws-ebs-csi-driver = {
+      most_recent              = true
+      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
+    }
   }
 
   # Enable logging
@@ -502,4 +506,74 @@ resource "helm_release" "tailscale_operator" {
     kubernetes_namespace.tailscale_operator,
     module.eks,
   ]
+}
+
+################################################################################
+# EBS CSI Driver IAM Role                                                     #
+################################################################################
+
+# Create IAM role for EBS CSI driver
+module "ebs_csi_irsa_role" {
+  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+
+  role_name             = "${local.name}-ebs-csi"
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    ex = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+
+  tags = local.aws_tags
+}
+
+################################################################################
+# Storage Configuration                                                        #
+################################################################################
+
+# Apply storage classes for EBS volumes
+resource "kubernetes_manifest" "storage_class_gp3" {
+  manifest = {
+    apiVersion = "storage.k8s.io/v1"
+    kind       = "StorageClass"
+    metadata = {
+      name = "gp3"
+      annotations = {
+        "storageclass.kubernetes.io/is-default-class" = "true"
+      }
+    }
+    provisioner          = "ebs.csi.aws.com"
+    parameters = {
+      type      = "gp3"
+      fsType    = "ext4"
+      encrypted = "true"
+    }
+    volumeBindingMode    = "WaitForFirstConsumer"
+    allowVolumeExpansion = true
+  }
+  
+  depends_on = [module.eks]
+}
+
+resource "kubernetes_manifest" "storage_class_gp3_retain" {
+  manifest = {
+    apiVersion = "storage.k8s.io/v1"
+    kind       = "StorageClass"
+    metadata = {
+      name = "gp3-retain"
+    }
+    provisioner       = "ebs.csi.aws.com"
+    parameters = {
+      type      = "gp3"
+      fsType    = "ext4"
+      encrypted = "true"
+    }
+    reclaimPolicy        = "Retain"
+    volumeBindingMode    = "WaitForFirstConsumer"
+    allowVolumeExpansion = true
+  }
+  
+  depends_on = [module.eks]
 } 
