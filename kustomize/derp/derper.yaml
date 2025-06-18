@@ -32,6 +32,28 @@ spec:
         resources: {}
         securityContext:
           privileged: true
+      - name: derper-config-init
+        image: busybox
+        command:
+        - /bin/sh
+        - -c
+        - |
+          mkdir -p /config/$(TS_DERP_HOSTNAME)
+          cp /secrets/tls.crt /config/$(TS_DERP_HOSTNAME)/$(TS_DERP_HOSTNAME).crt
+          cp /secrets/tls.key /config/$(TS_DERP_HOSTNAME)/$(TS_DERP_HOSTNAME).key
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: TS_DERP_HOSTNAME
+          value: "$(NODE_NAME).customderp.rajsingh.info"
+        volumeMounts:
+        - name: derper-tls
+          mountPath: /secrets
+          readOnly: true
+        - name: derper-config
+          mountPath: /config
       containers:
       - name: derper
         image: ghcr.io/erisa/ts-derper:latest
@@ -60,9 +82,9 @@ spec:
         - name: TS_DERP_STUN_PORT
           value: "3478"
         - name: TS_DERP_CERTMODE
-          value: "letsencrypt"
+          value: "manual"
         - name: TS_DERP_VERIFY_CLIENTS
-          value: "true"
+          value: "false"
         - name: TS_AUTHKEY
           valueFrom:
             secretKeyRef:
@@ -77,11 +99,13 @@ spec:
             - NET_ADMIN
             - NET_RAW
         volumeMounts:
-        # - name: derper-tls
-        #   mountPath: /root/derper
-        #   readOnly: true
+        - name: derper-tls
+          mountPath: /secrets
+          readOnly: true
         - name: tailscale-state
           mountPath: /tsstate
+        - name: derper-config
+          mountPath: /root/derper
         ports:
         - containerPort: 80
           name: http
@@ -93,8 +117,10 @@ spec:
           name: stun
           protocol: UDP
       volumes:
-      # - name: derper-tls
-      #   secret:
-      #     secretName: derper-tls
+      - name: derper-tls
+        secret:
+          secretName: derper-tls
       - name: tailscale-state
+        emptyDir: {}
+      - name: derper-config
         emptyDir: {}
