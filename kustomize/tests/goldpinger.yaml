@@ -65,7 +65,7 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: HTTP_TARGETS
-              value: "http://goldpinger-ottawa:8080 http://goldpinger-robbinsdale:8080 http://goldpinger-ottawa.keiretsu.ts.net:8080 http://goldpinger-robbinsdale.keiretsu.ts.net:8080"
+              value: "http://goldpinger-customerderp.default:8080"
             - name: TCP_TARGETS
               value: "10.69.${SITE_ID}.69:53 10.69.69.50:53"
           image: "docker.io/bloomberg/goldpinger:3.10.2"
@@ -102,7 +102,6 @@ metadata:
   namespace: default
   labels:
     app: goldpinger
-    # tailscale.com/proxy-class: "common"
   annotations:
     tailscale.com/hostname: "goldpinger-${LOCATION}"
 spec:
@@ -114,26 +113,36 @@ spec:
     app: goldpinger
   loadBalancerClass: tailscale
 ---
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
+apiVersion: v1
+kind: Service
+metadata:
+  name: goldpinger-customerderp
+  annotations:
+    tailscale.com/proxy-group: common-egress
+spec:
+  externalName: placeholder   # any value - will be overwritten by operator
+  type: ExternalName 
+  ports:
+  - name: http # any value
+    port: 8080
+    protocol: TCP
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
 metadata:
   name: goldpinger
 spec:
-  parentRefs:
-    - group: gateway.networking.k8s.io
-      kind: Gateway
-      name: local-ts
-      namespace: keiretsu
-  hostnames:
-    - "goldpinger.${LOCATION}.${RAJSINGH_INFO_DOMAIN}"
+  ingressClassName: tailscale
   rules:
-    - backendRefs:
-        - group: ""
-          kind: Service
-          name: goldpinger
-          port: 8080
-          weight: 1
-      matches:
-        - path:
-            type: PathPrefix
-            value: / 
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: goldpinger
+            port:
+              name: http
+  tls:
+  - hosts:
+    - derpprobe
