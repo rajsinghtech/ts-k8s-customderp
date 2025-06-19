@@ -145,4 +145,4 @@ spec:
               name: http
   tls:
   - hosts:
-    - derpprobe
+    - goldpinger
