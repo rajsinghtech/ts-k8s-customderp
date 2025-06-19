@@ -1,0 +1,18 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: monitoring
+
+generatorOptions:
+  disableNameSuffixHash: true
+  labels:
+    grafana_dashboard: "1"
+  annotations:
+    grafana-folder: "derp"
+
+configMapGenerator:
+- name: derp-server-grafana-dashboard
+  files:
+  - derp-server.json=dashboard-tailscale-derper.json
+- name: derp-probe-grafana-dashboard
+  files:
+  - derp-probe.json=dashboard-tailscale-derperprobe.json

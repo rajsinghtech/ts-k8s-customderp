@@ -1,0 +1,9 @@
+apiVersion: tailscale.com/v1alpha1
+kind: ProxyGroup
+metadata:
+  name: common-egress
+spec:
+  tags:
+    - tag:k8s
+  type: egress
+  replicas: 20
