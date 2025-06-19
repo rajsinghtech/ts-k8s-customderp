@@ -54,8 +54,20 @@ spec:
       - name: derpprobe
         image: ghcr.io/rajsinghtech/derpprobe:v0.0.1
         command: ["/bin/sh", "-c", "/usr/local/bin/derpprobe -derp-map=file:///config/custom-derp.json"]
+        env:
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        # Fixed: More comprehensive debug access including Tailscale CGNAT range
+        - name: TS_ALLOW_DEBUG_IP
+          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+        # Optional: Enable debug key authentication as backup
+        # - name: TS_DEBUG_KEY_PATH
+        #   value: "/etc/debug-key/key"
         ports:
         - containerPort: 8030
+          name: http
         volumeMounts:
         - name: config-volume
           mountPath: /config
@@ -98,6 +110,7 @@ spec:
   - hosts:
     - derpprobe
 ---
+# Fixed: Single ServiceMonitor for both standard metrics and debug metrics
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -106,10 +119,24 @@ metadata:
     app: derpprobe
 spec:
   endpoints:
+    # Standard Prometheus metrics
+    - interval: 30s
+      path: /debug/varz
+      port: http
+      scheme: http
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: 'derpprobe_.*'
+          action: keep
+    # Alternative endpoint for any other metrics
     - interval: 30s
       path: /metrics
       port: http
       scheme: http
+      metricRelabelings:
+        - sourceLabels: [__name__]
+          regex: 'go_.*|process_.*|promhttp_.*'
+          action: keep
   selector:
     matchLabels:
       app: derpprobe

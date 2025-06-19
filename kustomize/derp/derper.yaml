@@ -92,6 +92,16 @@ spec:
               key: TS_AUTHKEY
         - name: TS_ACCEPT_DNS
           value: "true"
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        # Fixed: More comprehensive debug access including cluster networks
+        - name: TS_ALLOW_DEBUG_IP
+          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
+        # Optional: Enable debug server on specific port
+        - name: TS_DEBUG_ADDR_PORT
+          value: "$(POD_IP):80"
         securityContext:
           privileged: true
           capabilities:
@@ -124,3 +134,20 @@ spec:
         emptyDir: {}
       - name: derper-config
         emptyDir: {}
+---
+# Fixed: Changed to PodMonitor with correct port and path
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: tailscale-derp
+  labels:
+    app: tailscale-derp
+spec:
+  selector:
+    matchLabels:
+      app: tailscale-derp
+  podMetricsEndpoints:
+  - port: http
+    path: /debug/varz
+    interval: 30s
+    scheme: http
