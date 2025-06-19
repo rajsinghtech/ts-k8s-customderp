@@ -96,12 +96,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        # Fixed: More comprehensive debug access including cluster networks
-        - name: TS_ALLOW_DEBUG_IP
-          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
-        # Optional: Enable debug server on specific port
-        - name: TS_DEBUG_ADDR_PORT
-          value: "$(POD_IP):80"
+        - name: TS_DEBUG_KEY_PATH
+          value: "/etc/debug-key/key"
         securityContext:
           privileged: true
           capabilities:
@@ -116,6 +112,9 @@ spec:
           mountPath: /tsstate
         - name: derper-config
           mountPath: /root/derper
+        - name: debug-key
+          mountPath: /etc/debug-key
+          readOnly: true
         ports:
         - containerPort: 80
           name: http
@@ -134,6 +133,9 @@ spec:
         emptyDir: {}
       - name: derper-config
         emptyDir: {}
+      - name: debug-key
+        secret:
+          secretName: derp-debug-key
 ---
 # Fixed: Changed to PodMonitor with correct port and path
 apiVersion: monitoring.coreos.com/v1
@@ -149,5 +151,7 @@ spec:
   podMetricsEndpoints:
   - port: http
     path: /debug/varz
+    params:
+      debugkey: ["customderp"]
     interval: 30s
     scheme: http

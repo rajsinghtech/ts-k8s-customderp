@@ -59,22 +59,24 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-        # Fixed: More comprehensive debug access including Tailscale CGNAT range
-        - name: TS_ALLOW_DEBUG_IP
-          value: "10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,100.64.0.0/10"
-        # Optional: Enable debug key authentication as backup
-        # - name: TS_DEBUG_KEY_PATH
-        #   value: "/etc/debug-key/key"
+        - name: TS_DEBUG_KEY_PATH
+          value: "/etc/debug-key/key"
         ports:
         - containerPort: 8030
           name: http
         volumeMounts:
         - name: config-volume
           mountPath: /config
+        - name: debug-key
+          mountPath: /etc/debug-key
+          readOnly: true
       volumes:
       - name: config-volume
         configMap:
-          name: derpprobe 
+          name: derpprobe
+      - name: debug-key
+        secret:
+          secretName: derp-debug-key 
 ---
 apiVersion: v1
 kind: Service
@@ -119,9 +121,11 @@ metadata:
     app: derpprobe
 spec:
   endpoints:
-    # Standard Prometheus metrics
+    # Standard Prometheus metrics with debug key
     - interval: 30s
       path: /debug/varz
+      params:
+        debugkey: ["customderp"]
       port: http
       scheme: http
       metricRelabelings:
