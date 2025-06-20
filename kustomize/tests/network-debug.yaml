@@ -1,0 +1,77 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: network-debug
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: network-debug
+  template:
+    metadata:
+      labels:
+        app: network-debug
+    spec:
+      containers:
+      - name: debug
+        image: nicolaka/netshoot:latest
+        command:
+        - /bin/bash
+        - -c
+        - |
+          echo "Network Debug Pod Started"
+          echo "========================="
+          echo "Pod IP: $(hostname -I)"
+          echo "Hostname: $(hostname)"
+          echo "Namespace: default"
+          echo ""
+          
+          while true; do
+            echo "[$(date)] Running network diagnostics..."
+            
+            echo "1. Testing hello-world.default service..."
+            curl -v --connect-timeout 5 http://hello-world.default/health || echo "❌ Direct service failed"
+            
+            echo ""
+            echo "2. Testing hello-world-customerderp.default service..."
+            curl -v --connect-timeout 5 http://hello-world-customerderp.default/ || echo "❌ Proxy service failed"
+            
+            echo ""
+            echo "3. DNS lookups..."
+            nslookup hello-world.default
+            nslookup hello-world-customerderp.default
+            
+            echo ""
+            echo "4. Port scans..."
+            nc -zv hello-world.default 80 || echo "❌ Port 80 not reachable on hello-world.default"
+            
+            echo ""
+            echo "5. Service endpoints..."
+            kubectl get svc hello-world -o wide || echo "Cannot access kubectl"
+            kubectl get svc hello-world-customerderp -o wide || echo "Cannot access kubectl"
+            
+            echo ""
+            echo "6. Pod status..."
+            kubectl get pods -l app=hello-world || echo "Cannot access kubectl"
+            
+            echo "================================="
+            sleep 30
+          done
+        env:
+        - name: DEBUG
+          value: "true"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: network-debug
+  namespace: default
+spec:
+  selector:
+    app: network-debug
+  ports:
+  - name: debug
+    port: 8080
+    targetPort: 8080 

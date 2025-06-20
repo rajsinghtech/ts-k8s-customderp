@@ -6,4 +6,4 @@ spec:
   tags:
     - tag:k8s
   type: egress
-  replicas: 20
+  replicas: 3
