@@ -11,7 +11,7 @@ data:
   curl-loop.sh: |
     #!/bin/bash
 
-    URL="http://hello-world-customerderp.default:80"
+    URL="http://hello-world-external.default:80"
     INTERVAL=1
     echo "Starting infinite curl loop to $URL every $INTERVAL second(s)..."
     while true; do

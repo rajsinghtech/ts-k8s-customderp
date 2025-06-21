@@ -62,10 +62,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-world-customerderp
+  name: hello-world-external
   namespace: default
   annotations:
-    tailscale.com/tailnet-fqdn: default-hello-world.tail8eff9.ts.net
+    tailscale.com/tailnet-fqdn: hello-world.tail8eff9.ts.net
     tailscale.com/proxy-group: common-egress
 spec:
   externalName: placeholder   # any value - will be overwritten by operator
