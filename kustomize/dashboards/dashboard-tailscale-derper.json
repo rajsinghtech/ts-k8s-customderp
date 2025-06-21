@@ -96,7 +96,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(up{job=\"derp/tailscale-derp\"})",
+          "expr": "count(up{job=\"derp/derper\"})",
           "legendFormat": "Active Nodes",
           "range": true,
           "refId": "A"
@@ -166,7 +166,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(derp_current_connections{job=\"derp/tailscale-derp\"})",
+          "expr": "sum(derp_current_connections{job=\"derp/derper\"})",
           "legendFormat": "Total Connections",
           "range": true,
           "refId": "A"
@@ -228,7 +228,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(derp_bytes_sent{job=\"derp/tailscale-derp\"}[5m])) + sum(rate(derp_bytes_received{job=\"derp/tailscale-derp\"}[5m]))",
+          "expr": "sum(rate(derp_bytes_sent{job=\"derp/derper\"}[5m])) + sum(rate(derp_bytes_received{job=\"derp/derper\"}[5m]))",
           "legendFormat": "Total Throughput",
           "range": true,
           "refId": "A"
@@ -290,7 +290,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(rate(stun_requests{job=\"derp/tailscale-derp\", disposition=\"success\"}[5m]))",
+          "expr": "sum(rate(stun_requests{job=\"derp/derper\", disposition=\"success\"}[5m]))",
           "legendFormat": "STUN Req/sec",
           "range": true,
           "refId": "A"
@@ -382,7 +382,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derp_current_connections{job=\"derp/tailscale-derp\", instance=~\"$node\"}",
+          "expr": "derp_current_connections{job=\"derp/derper\", instance=~\"$node\"}",
           "legendFormat": "{{instance}} - Total",
           "range": true,
           "refId": "A"
@@ -393,7 +393,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derp_current_home_connections{job=\"derp/tailscale-derp\", instance=~\"$node\"}",
+          "expr": "derp_current_home_connections{job=\"derp/derper\", instance=~\"$node\"}",
           "legendFormat": "{{instance}} - Home",
           "range": true,
           "refId": "B"
@@ -404,7 +404,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derp_clients_total{job=\"derp/tailscale-derp\", instance=~\"$node\"}",
+          "expr": "derp_clients_total{job=\"derp/derper\", instance=~\"$node\"}",
           "legendFormat": "{{instance}} - Clients",
           "range": true,
           "refId": "C"
@@ -496,7 +496,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_bytes_sent{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derp_bytes_sent{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - Sent",
           "range": true,
           "refId": "A"
@@ -507,7 +507,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_bytes_received{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derp_bytes_received{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - Received",
           "range": true,
           "refId": "B"
@@ -599,7 +599,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_packets_sent{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derp_packets_sent{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - Sent",
           "range": true,
           "refId": "A"
@@ -610,7 +610,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_packets_received{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derp_packets_received{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - Received",
           "range": true,
           "refId": "B"
@@ -702,7 +702,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_packets_dropped{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derp_packets_dropped{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - {{reason}} ({{kind}})",
           "range": true,
           "refId": "A"
@@ -794,7 +794,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(stun_requests{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(stun_requests{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - {{disposition}}",
           "range": true,
           "refId": "A"
@@ -886,7 +886,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derper_tls_active_version{job=\"derp/tailscale-derp\", instance=~\"$node\"}",
+          "expr": "derper_tls_active_version{job=\"derp/derper\", instance=~\"$node\"}",
           "legendFormat": "{{instance}} - TLS {{version}} Active",
           "range": true,
           "refId": "A"
@@ -897,7 +897,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derper_tls_request_version{job=\"derp/tailscale-derp\", instance=~\"$node\"}[5m])",
+          "expr": "rate(derper_tls_request_version{job=\"derp/derper\", instance=~\"$node\"}[5m])",
           "legendFormat": "{{instance}} - TLS {{version}} Requests/sec",
           "range": true,
           "refId": "B"
@@ -980,7 +980,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"derp\", pod=~\"tailscale-derp.*\"})",
+          "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"derp\", pod=~\"derper.*\"})",
           "legendFormat": "Total Restarts",
           "range": true,
           "refId": "A"
@@ -1050,7 +1050,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "count(kube_pod_info{namespace=\"derp\", pod=~\"tailscale-derp.*\", phase=\"Running\"})",
+          "expr": "count(kube_pod_info{namespace=\"derp\", pod=~\"derper.*\", phase=\"Running\"})",
           "legendFormat": "Running Pods",
           "range": true,
           "refId": "A"
@@ -1120,7 +1120,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"derp\", pod=~\"tailscale-derp.*\", container!=\"POD\", container!=\"\"}[5m]))",
+          "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=\"derp\", pod=~\"derper.*\", container!=\"POD\", container!=\"\"}[5m]))",
           "legendFormat": "Avg CPU Usage",
           "range": true,
           "refId": "A"
@@ -1190,7 +1190,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "avg(container_memory_working_set_bytes{namespace=\"derp\", pod=~\"tailscale-derp.*\", container!=\"POD\", container!=\"\"})",
+          "expr": "avg(container_memory_working_set_bytes{namespace=\"derp\", pod=~\"derper.*\", container!=\"POD\", container!=\"\"})",
           "legendFormat": "Avg Memory Usage",
           "range": true,
           "refId": "A"
@@ -1282,7 +1282,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_cpu_usage_seconds_total{namespace=\"derp\", pod=~\"tailscale-derp.*\", container!=\"POD\", container!=\"\"}[5m])",
+          "expr": "rate(container_cpu_usage_seconds_total{namespace=\"derp\", pod=~\"derper.*\", container!=\"POD\", container!=\"\"}[5m])",
           "legendFormat": "{{pod}} - {{container}}",
           "range": true,
           "refId": "A"
@@ -1374,7 +1374,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "container_memory_working_set_bytes{namespace=\"derp\", pod=~\"tailscale-derp.*\", container!=\"POD\", container!=\"\"}",
+          "expr": "container_memory_working_set_bytes{namespace=\"derp\", pod=~\"derper.*\", container!=\"POD\", container!=\"\"}",
           "legendFormat": "{{pod}} - {{container}}",
           "range": true,
           "refId": "A"
@@ -1479,7 +1479,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_receive_bytes_total{namespace=\"derp\", pod=~\"tailscale-derp.*\"}[5m])",
+          "expr": "rate(container_network_receive_bytes_total{namespace=\"derp\", pod=~\"derper.*\"}[5m])",
           "legendFormat": "{{pod}} - receive",
           "range": true,
           "refId": "A"
@@ -1490,7 +1490,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(container_network_transmit_bytes_total{namespace=\"derp\", pod=~\"tailscale-derp.*\"}[5m])",
+          "expr": "rate(container_network_transmit_bytes_total{namespace=\"derp\", pod=~\"derper.*\"}[5m])",
           "legendFormat": "{{pod}} - transmit",
           "range": true,
           "refId": "B"
@@ -1587,7 +1587,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "kube_pod_status_ready{namespace=\"derp\", pod=~\"tailscale-derp.*\", condition=\"true\"}",
+          "expr": "kube_pod_status_ready{namespace=\"derp\", pod=~\"derper.*\", condition=\"true\"}",
           "format": "table",
           "instant": true,
           "legendFormat": "__auto",
@@ -2388,7 +2388,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_packets_forwarded_in{job=\"derp/tailscale-derp\"}[5m])",
+          "expr": "rate(derp_packets_forwarded_in{job=\"derp/derper\"}[5m])",
           "legendFormat": "{{instance}} - Forwarded In",
           "range": true,
           "refId": "A"
@@ -2399,7 +2399,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "rate(derp_packets_forwarded_out{job=\"derp/tailscale-derp\"}[5m])",
+          "expr": "rate(derp_packets_forwarded_out{job=\"derp/derper\"}[5m])",
           "legendFormat": "{{instance}} - Forwarded Out",
           "range": true,
           "refId": "B"
@@ -2499,7 +2499,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "sum by (reason) (rate(derp_packets_dropped{job=\"derp/tailscale-derp\"}[5m]))",
+          "expr": "sum by (reason) (rate(derp_packets_dropped{job=\"derp/derper\"}[5m]))",
           "legendFormat": "{{reason}}",
           "range": true,
           "refId": "A"
@@ -2591,7 +2591,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derp_current_home_connections{job=\"derp/tailscale-derp\"}",
+          "expr": "derp_current_home_connections{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Home Connections",
           "range": true,
           "refId": "A"
@@ -2602,7 +2602,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "derp_clients_remote{job=\"derp/tailscale-derp\"}",
+          "expr": "derp_clients_remote{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Remote Clients",
           "range": true,
           "refId": "B"
@@ -2694,7 +2694,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "go_memstats_heap_alloc_bytes{job=\"derp/tailscale-derp\"}",
+          "expr": "go_memstats_heap_alloc_bytes{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Heap Allocated",
           "range": true,
           "refId": "A"
@@ -2705,7 +2705,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "process_resident_memory_bytes{job=\"derp/tailscale-derp\"}",
+          "expr": "process_resident_memory_bytes{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Process Memory",
           "range": true,
           "refId": "B"
@@ -2797,7 +2797,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "go_goroutines{job=\"derp/tailscale-derp\"}",
+          "expr": "go_goroutines{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Goroutines",
           "range": true,
           "refId": "A"
@@ -2808,7 +2808,7 @@
             "uid": "prometheus"
           },
           "editorMode": "code",
-          "expr": "process_open_fds{job=\"derp/tailscale-derp\"}",
+          "expr": "process_open_fds{job=\"derp/derper\"}",
           "legendFormat": "{{instance}} - Open FDs",
           "range": true,
           "refId": "B"
@@ -2834,7 +2834,7 @@
           "type": "prometheus",
           "uid": "prometheus"
         },
-        "definition": "label_values(up{job=\"derp/tailscale-derp\"}, instance)",
+        "definition": "label_values(up{job=\"derp/derper\"}, instance)",
         "hide": 0,
         "includeAll": true,
         "label": "DERP Node",
@@ -2842,7 +2842,7 @@
         "name": "node",
         "options": [],
         "query": {
-          "query": "label_values(up{job=\"derp/tailscale-derp\"}, instance)",
+          "query": "label_values(up{job=\"derp/derper\"}, instance)",
           "refId": "StandardVariableQuery"
         },
         "refresh": 1,

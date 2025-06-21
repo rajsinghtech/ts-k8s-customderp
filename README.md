@@ -147,8 +147,8 @@ The cluster includes security group rules for both IPv4 and IPv6:
 
 ### DNS and Certificates
 
-- **Domain Pattern**: `{node-name}.customderp.rajsingh.info`
-- **Certificate**: Wildcard cert `*.ec2.internal.customderp.rajsingh.info`
+- **Domain Pattern**: `{node-name}.derp.rajsingh.info`
+- **Certificate**: Wildcard cert `*.ec2.internal.derp.rajsingh.info`
 - **Challenge**: DNS-01 via Cloudflare API
 - **DDNS**: Automatic A/AAAA record updates
 

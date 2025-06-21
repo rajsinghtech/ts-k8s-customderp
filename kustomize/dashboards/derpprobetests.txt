@@ -3,35 +3,35 @@
 # TYPE derpprobe_attempts_total counter
 derpprobe_attempts_total{class="derp_map",name="derpmap-probe",status="fail"} 0
 derpprobe_attempts_total{class="derp_map",name="derpmap-probe",status="ok"} 77
-derpprobe_attempts_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="fail"} 0
-derpprobe_attempts_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="ok"} 76
-derpprobe_attempts_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="fail"} 0
-derpprobe_attempts_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="ok"} 77
-derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="fail"} 0
-derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="ok"} 76
-derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="fail"} 1
-derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="ok"} 76
+derpprobe_attempts_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="fail"} 0
+derpprobe_attempts_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="ok"} 76
+derpprobe_attempts_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="fail"} 0
+derpprobe_attempts_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="ok"} 77
+derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="fail"} 0
+derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="ok"} 76
+derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="fail"} 1
+derpprobe_attempts_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="ok"} 76
 # HELP derpprobe_end_secs Latest probe end time (seconds since epoch)
 # TYPE derpprobe_end_secs gauge
 derpprobe_end_secs{class="derp_map",name="derpmap-probe"} 1.750370065e+09
-derpprobe_end_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1.750370059e+09
-derpprobe_end_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1.750370068e+09
-derpprobe_end_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1.75037006e+09
-derpprobe_end_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1.750370067e+09
+derpprobe_end_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1.750370059e+09
+derpprobe_end_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1.750370068e+09
+derpprobe_end_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1.75037006e+09
+derpprobe_end_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1.750370067e+09
 # HELP derpprobe_interval_secs Probe interval in seconds
 # TYPE derpprobe_interval_secs gauge
 derpprobe_interval_secs{class="derp_map",name="derpmap-probe"} 15
-derpprobe_interval_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 15
-derpprobe_interval_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 15
-derpprobe_interval_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 15
-derpprobe_interval_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 15
+derpprobe_interval_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 15
+derpprobe_interval_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 15
+derpprobe_interval_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 15
+derpprobe_interval_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 15
 # HELP derpprobe_latency_millis Latest probe latency (ms)
 # TYPE derpprobe_latency_millis gauge
 derpprobe_latency_millis{class="derp_map",name="derpmap-probe"} 0
-derpprobe_latency_millis{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 30
-derpprobe_latency_millis{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 28
-derpprobe_latency_millis{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 26
-derpprobe_latency_millis{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 24
+derpprobe_latency_millis{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 30
+derpprobe_latency_millis{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 28
+derpprobe_latency_millis{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 26
+derpprobe_latency_millis{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 24
 # HELP derpprobe_mesh_connections_up Number of successful mesh connections between DERP servers in a region
 # TYPE derpprobe_mesh_connections_up gauge
 derpprobe_mesh_connections_up{region="awseastus1-0",region_id="900"} 1
@@ -43,37 +43,37 @@ derpprobe_region_up{region="awseastus1-1",region_id="901"} 1
 # HELP derpprobe_result Latest probe result (1 = success, 0 = failure)
 # TYPE derpprobe_result gauge
 derpprobe_result{class="derp_map",name="derpmap-probe"} 1
-derpprobe_result{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1
-derpprobe_result{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1
-derpprobe_result{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1
-derpprobe_result{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1
+derpprobe_result{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1
+derpprobe_result{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1
+derpprobe_result{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1
+derpprobe_result{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1
 # HELP derpprobe_seconds_total Total amount of time spent executing the probe
 # TYPE derpprobe_seconds_total counter
 derpprobe_seconds_total{class="derp_map",name="derpmap-probe",status="fail"} 0
 derpprobe_seconds_total{class="derp_map",name="derpmap-probe",status="ok"} 0.018752991
-derpprobe_seconds_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="fail"} 0
-derpprobe_seconds_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="ok"} 2.5055131849999994
-derpprobe_seconds_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="fail"} 0
-derpprobe_seconds_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="ok"} 2.3036310819999994
-derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="fail"} 0
-derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="ok"} 2.1168839979999996
-derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="fail"} 0.001583814
-derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="ok"} 2.0048086250000003
+derpprobe_seconds_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="fail"} 0
+derpprobe_seconds_total{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901",status="ok"} 2.5055131849999994
+derpprobe_seconds_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="fail"} 0
+derpprobe_seconds_total{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900",status="ok"} 2.3036310819999994
+derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="fail"} 0
+derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901",status="ok"} 2.1168839979999996
+derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="fail"} 0.001583814
+derpprobe_seconds_total{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900",status="ok"} 2.0048086250000003
 # HELP derpprobe_server_latency_ms Latest successful probe latency to DERP server in milliseconds
 # TYPE derpprobe_server_latency_ms gauge
-derpprobe_server_latency_ms{hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",probe_type="mesh",region="awseastus1-1",region_id="901",server="1"} 26
-derpprobe_server_latency_ms{hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",probe_type="mesh",region="awseastus1-0",region_id="900",server="0"} 25
+derpprobe_server_latency_ms{hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",probe_type="mesh",region="awseastus1-1",region_id="901",server="1"} 26
+derpprobe_server_latency_ms{hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",probe_type="mesh",region="awseastus1-0",region_id="900",server="0"} 25
 # HELP derpprobe_server_up Whether a DERP server is up (1) or down (0)
 # TYPE derpprobe_server_up gauge
-derpprobe_server_up{hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",region="awseastus1-1",region_id="901",server="1"} 1
-derpprobe_server_up{hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",region="awseastus1-0",region_id="900",server="0"} 1
+derpprobe_server_up{hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",region="awseastus1-1",region_id="901",server="1"} 1
+derpprobe_server_up{hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",region="awseastus1-0",region_id="900",server="0"} 1
 # HELP derpprobe_start_secs Latest probe start time (seconds since epoch)
 # TYPE derpprobe_start_secs gauge
 derpprobe_start_secs{class="derp_map",name="derpmap-probe"} 1.750370065e+09
-derpprobe_start_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1.750370059e+09
-derpprobe_start_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1.750370068e+09
-derpprobe_start_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1.75037006e+09
-derpprobe_start_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.customderp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1.750370067e+09
+derpprobe_start_secs{class="tls",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/tls",region="awseastus1-1",region_id="901"} 1.750370059e+09
+derpprobe_start_secs{class="tls",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/tls",region="awseastus1-0",region_id="900"} 1.750370068e+09
+derpprobe_start_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-2-81.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-1/1/1/mesh",region="awseastus1-1",region_id="901"} 1.75037006e+09
+derpprobe_start_secs{class="derp_mesh",derp_path="single",hostname="ip-10-0-3-119.ec2.internal.derp.rajsingh.info",name="derp/awseastus1-0/0/0/mesh",region="awseastus1-0",region_id="900"} 1.750370067e+09
 # HELP go_gc_duration_seconds A summary of the pause duration of garbage collection cycles.
 # TYPE go_gc_duration_seconds summary
 go_gc_duration_seconds{quantile="0"} 3.9384e-05

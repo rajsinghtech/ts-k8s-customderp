@@ -27,7 +27,7 @@ spec:
                   name: derp-secret
                   key: CLOUDFLARE_API_TOKEN
             - name: DOMAINS
-              value: "$(NODE_NAME).customderp.rajsingh.info"
+              value: "$(NODE_NAME).derp.rajsingh.info"
             - name: PROXIED
               value: "false"
       securityContext:

@@ -15,7 +15,7 @@ data:
                     {
                         "Name": "0",
                         "RegionID": 900,
-                        "HostName": "ip-10-0-3-119.ec2.internal.customderp.rajsingh.info"
+                        "HostName": "ip-10-0-3-119.ec2.internal.derp.rajsingh.info"
                     }
                 ]
             },
@@ -27,7 +27,7 @@ data:
                     {
                         "Name": "1",
                         "RegionID": 901,
-                        "HostName": "ip-10-0-2-81.ec2.internal.customderp.rajsingh.info"
+                        "HostName": "ip-10-0-2-81.ec2.internal.derp.rajsingh.info"
                     }
                 ]
             }
@@ -76,7 +76,7 @@ spec:
           name: derpprobe
       - name: debug-key
         secret:
-          secretName: derp-debug-key 
+          secretName: derp-secret 
 ---
 apiVersion: v1
 kind: Service

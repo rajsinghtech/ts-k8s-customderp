@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: tailscale-derp
+  name: derper
   labels:
-    app: tailscale-derp
+    app: derper
 spec:
   selector:
     matchLabels:
-      app: tailscale-derp
+      app: derper
   template:
     metadata:
       labels:
-        app: tailscale-derp
+        app: derper
     spec:
       hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
@@ -47,7 +47,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: TS_DERP_HOSTNAME
-          value: "$(NODE_NAME).customderp.rajsingh.info"
+          value: "$(NODE_NAME).derp.rajsingh.info"
         volumeMounts:
         - name: derper-tls
           mountPath: /secrets
@@ -56,8 +56,14 @@ spec:
           mountPath: /config
       containers:
       - name: derper
-        image: ghcr.io/erisa/ts-derper:latest
+        image: ghcr.io/rajsinghtech/derper:v0.0.1
         imagePullPolicy: Always
+        command:
+        - /bin/sh
+        - -c
+        - |
+          /usr/local/bin/containerboot &
+          exec /usr/local/bin/derper --hostname $(TS_DERP_HOSTNAME) --bootstrap-dns-names $(TS_DERP_HOSTNAME) -certmode $(TS_DERP_CERTMODE) -certdir /root/derper/$(TS_DERP_HOSTNAME) --stun --verify-clients=$(TS_DERP_VERIFY_CLIENTS) --http-port=$(TS_DERP_HTTP_PORT) -a :$(TS_DERP_LISTEN_PORT) --stun-port=$(TS_DERP_STUN_PORT) $(TS_DERP_EXTRA_ARGS)
         env:
         - name: TS_RUN_TAILSCALE
           value: "true"
@@ -74,7 +80,7 @@ spec:
             fieldRef:
               fieldPath: spec.nodeName
         - name: TS_DERP_HOSTNAME
-          value: "$(NODE_NAME).customderp.rajsingh.info"
+          value: "$(NODE_NAME).derp.rajsingh.info"
         - name: TS_DERP_HTTP_PORT
           value: "80"
         - name: TS_DERP_LISTEN_PORT
@@ -135,19 +141,19 @@ spec:
         emptyDir: {}
       - name: debug-key
         secret:
-          secretName: derp-debug-key
+          secretName: derp-secret
 ---
 # Fixed: Changed to PodMonitor with correct port and path
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
-  name: tailscale-derp
+  name: derper
   labels:
-    app: tailscale-derp
+    app: derper
 spec:
   selector:
     matchLabels:
-      app: tailscale-derp
+      app: derper
   podMetricsEndpoints:
   - port: http
     path: /debug/varz
